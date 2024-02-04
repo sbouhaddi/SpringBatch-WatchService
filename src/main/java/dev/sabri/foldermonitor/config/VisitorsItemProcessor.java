@@ -1,19 +1,21 @@
 package dev.sabri.foldermonitor.config;
 
 import dev.sabri.foldermonitor.domain.Visitors;
+import dev.sabri.foldermonitor.dto.VisitorsDto;
+import dev.sabri.foldermonitor.mapper.VisitorsMapper;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-
 @Component
-public class VisitorsItemProcessor implements ItemProcessor<Visitors, Visitors> {
+public class VisitorsItemProcessor implements ItemProcessor<VisitorsDto, Visitors> {
+    private final VisitorsMapper visitorsMapper;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
+    public VisitorsItemProcessor(VisitorsMapper visitorsMapper) {
+        this.visitorsMapper = visitorsMapper;
+    }
 
     @Override
-    public Visitors process(Visitors item) throws Exception {
-        item.setVisitDate(dateFormat.parse(item.getStrVisitDate()));
-        return item;
+    public Visitors process(final VisitorsDto visitorsDto) throws Exception {
+        return visitorsMapper.toVisitors(visitorsDto);
     }
 }

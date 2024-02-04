@@ -7,11 +7,11 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DbWriter implements ItemWriter<Visitors> {
+public class VisitorsItemWriter implements ItemWriter<Visitors> {
 
     private final VisitorsRepository visitorsRepository;
 
-    public DbWriter(VisitorsRepository visitorsRepository) {
+    public VisitorsItemWriter(VisitorsRepository visitorsRepository) {
         this.visitorsRepository = visitorsRepository;
     }
 

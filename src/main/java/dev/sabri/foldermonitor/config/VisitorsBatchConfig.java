@@ -1,25 +1,25 @@
 package dev.sabri.foldermonitor.config;
 
 import dev.sabri.foldermonitor.domain.Visitors;
-import dev.sabri.foldermonitor.repositories.VisitorsRepository;
+import dev.sabri.foldermonitor.dto.VisitorsDto;
+import dev.sabri.foldermonitor.mapper.VisitorsMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
-import org.springframework.batch.item.file.MultiResourceItemReader;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.IOException;
@@ -28,9 +28,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class VisitorsBatchConfig {
 
-
-    private final VisitorsRepository visitorsRepository;
-    private final DbWriter dbWriter;
+    private final VisitorsItemWriter visitorsItemWriter;
+    private final VisitorsMapper visitorsMapper;
 
     @Bean
     public Job importVistorsJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws IOException {
@@ -42,49 +41,40 @@ public class VisitorsBatchConfig {
     @Bean
     public Step importVistorsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws IOException {
         return new StepBuilder("importVistorsStep", jobRepository)
-                .<Visitors, Visitors>chunk(100, transactionManager)
-                .reader(multiResourceItemReader())
+                .<VisitorsDto, Visitors>chunk(100, transactionManager)
+                .reader(flatFileItemReader(null))
                 .processor(itemProcessor())
-                .writer(dbWriter)
+                .writer(visitorsItemWriter)
                 .build();
     }
 
     @Bean
-    public ItemProcessor<Visitors, Visitors> itemProcessor() {
-        return new VisitorsItemProcessor();
+    public ItemProcessor<VisitorsDto, Visitors> itemProcessor() {
+        return new VisitorsItemProcessor(visitorsMapper);
     }
 
 
     @Bean
-    public ItemReader<Visitors> multiResourceItemReader() throws IOException {
-        val reader = new MultiResourceItemReader<Visitors>();
-        val resources = new PathMatchingResourcePatternResolver().getResources("file:/home/sabri/Work/*.csv"); // à changer par votre répertoire
-        reader.setResources(resources);
-        reader.setDelegate(flatFileItemReader());
-        return reader;
-    }
-
-    @Bean
-    public FlatFileItemReader<Visitors> flatFileItemReader() {
-        val flatFileItemReader = new FlatFileItemReader<Visitors>();
+    @StepScope
+    public FlatFileItemReader<VisitorsDto> flatFileItemReader(@Value("#{jobParameters['inputFile']}") final String visitorsFile) throws IOException {
+        val flatFileItemReader = new FlatFileItemReader<VisitorsDto>();
         flatFileItemReader.setName("VISITORS_READER");
         flatFileItemReader.setLinesToSkip(1);
         flatFileItemReader.setLineMapper(linMapper());
         flatFileItemReader.setStrict(false);
+        flatFileItemReader.setResource(new FileSystemResource(visitorsFile));
         return flatFileItemReader;
     }
 
     @Bean
-    public LineMapper<Visitors> linMapper() {
-        val defaultLineMapper = new DefaultLineMapper<Visitors>();
+    public LineMapper<VisitorsDto> linMapper() {
+        val defaultLineMapper = new DefaultLineMapper<VisitorsDto>();
         val lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
-        lineTokenizer.setNames("id", "firstName", "lastName", "emailAddress", "phoneNumber", "address", "strVisitDate");
+        lineTokenizer.setNames("id", "firstName", "lastName", "emailAddress", "phoneNumber", "address", "visitDate");
         lineTokenizer.setStrict(false); // Set strict property to false
         defaultLineMapper.setLineTokenizer(lineTokenizer);
-        val fieldSetMapper = new BeanWrapperFieldSetMapper<Visitors>();
-        fieldSetMapper.setTargetType(Visitors.class);
-        defaultLineMapper.setFieldSetMapper(fieldSetMapper);
+        defaultLineMapper.setFieldSetMapper(new VisitorsFieldSetMapper());
         return defaultLineMapper;
 
     }

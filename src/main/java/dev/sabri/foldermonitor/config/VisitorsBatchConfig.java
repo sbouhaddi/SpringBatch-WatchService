@@ -3,7 +3,7 @@ package dev.sabri.foldermonitor.config;
 import dev.sabri.foldermonitor.domain.Visitors;
 import dev.sabri.foldermonitor.dto.VisitorsDto;
 import dev.sabri.foldermonitor.mapper.VisitorsMapper;
-import lombok.RequiredArgsConstructor;
+import dev.sabri.foldermonitor.repositories.VisitorsRepository;
 import lombok.val;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -25,32 +25,34 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.io.IOException;
 
 @Configuration
-@RequiredArgsConstructor
 public class VisitorsBatchConfig {
 
-    private final VisitorsItemWriter visitorsItemWriter;
-    private final VisitorsMapper visitorsMapper;
 
     @Bean
-    public Job importVistorsJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws IOException {
-        return new JobBuilder("importVistorsJob", jobRepository)
-                .start(importVistorsStep(jobRepository, transactionManager))
+    public Job importVistorsJob(final JobRepository jobRepository, final PlatformTransactionManager transactionManager, final VisitorsRepository visitorsRepository, final VisitorsMapper visitorsMapper) throws IOException {
+        return new JobBuilder("importVisitorsJob", jobRepository)
+                .start(importVisitorsStep(jobRepository, transactionManager, visitorsRepository, visitorsMapper))
                 .build();
     }
 
     @Bean
-    public Step importVistorsStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws IOException {
-        return new StepBuilder("importVistorsStep", jobRepository)
+    public Step importVisitorsStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager, final VisitorsRepository visitorsRepository, final VisitorsMapper visitorsMapper) throws IOException {
+        return new StepBuilder("importVisitorsStep", jobRepository)
                 .<VisitorsDto, Visitors>chunk(100, transactionManager)
                 .reader(flatFileItemReader(null))
-                .processor(itemProcessor())
-                .writer(visitorsItemWriter)
+                .processor(itemProcessor(visitorsMapper))
+                .writer(visitorsItemWriter(visitorsRepository))
                 .build();
     }
 
     @Bean
-    public ItemProcessor<VisitorsDto, Visitors> itemProcessor() {
+    public ItemProcessor<VisitorsDto, Visitors> itemProcessor(final VisitorsMapper visitorsMapper) {
         return new VisitorsItemProcessor(visitorsMapper);
+    }
+
+    @Bean
+    public VisitorsItemWriter visitorsItemWriter(final VisitorsRepository visitorsRepository) {
+        return new VisitorsItemWriter(visitorsRepository);
     }
 
 

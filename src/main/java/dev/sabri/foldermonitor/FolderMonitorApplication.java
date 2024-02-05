@@ -17,7 +17,6 @@ import java.nio.file.*;
 import java.util.Calendar;
 
 @SpringBootApplication
-@RequiredArgsConstructor
 @EnableBatchProcessing
 @EnableScheduling
 @Slf4j
@@ -25,6 +24,11 @@ public class FolderMonitorApplication {
 
     private final JobLauncher jobLauncher;
     private final Job job;
+
+    public FolderMonitorApplication(JobLauncher jobLauncher, Job job) {
+        this.jobLauncher = jobLauncher;
+        this.job = job;
+    }
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(FolderMonitorApplication.class)

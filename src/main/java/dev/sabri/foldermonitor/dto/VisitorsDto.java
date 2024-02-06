@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record VisitorsDto(
-        Long id,
+        Long visitorId,
         String firstName,
         String lastName,
         String emailAddress,

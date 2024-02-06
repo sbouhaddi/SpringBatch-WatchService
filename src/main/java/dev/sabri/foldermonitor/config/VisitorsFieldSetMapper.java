@@ -9,7 +9,7 @@ public class VisitorsFieldSetMapper implements FieldSetMapper<VisitorsDto> {
     @Override
     public VisitorsDto mapFieldSet(final FieldSet fieldSet) throws BindException {
         return VisitorsDto.builder()
-                .id(fieldSet.readLong("id"))
+                .visitorId(fieldSet.readLong("visitorId"))
                 .firstName(fieldSet.readString("firstName"))
                 .lastName(fieldSet.readString("lastName"))
                 .emailAddress(fieldSet.readString("emailAddress"))

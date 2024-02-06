@@ -16,7 +16,7 @@ public class VisitorsItemWriter implements ItemWriter<Visitors> {
     }
 
     @Override
-    public void write(Chunk<? extends Visitors> chunk) throws Exception {
-        visitorsRepository.saveAll(chunk.getItems());
+    public void write(Chunk<? extends Visitors> visitors) {
+        visitors.getItems().forEach(visitorsRepository::save);
     }
 }

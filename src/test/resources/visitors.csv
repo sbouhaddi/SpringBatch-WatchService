@@ -1,16 +1,6 @@
 visitor_id,first_name,last_name,email_address,phone_number,address,visit_date
-12345,John,Smith,john.smith@example.com,555-1234,123 Main St.,05/05/2023-09:44
-23456,Jane,Doe,jane.doe@example.com,555-5678,456 Elm St.,06/05/2023-10:44-18:13
-34567,Robert,Johnson,robert.johnson@example.com,555-9012,789 Oak St.,07/05/2023-09:44
-45678,Sarah,Lee,sarah.lee@example.com,555-3456,987 Maple St.,08/05/2023-13:15
-56789,David,Wang,david.wang@example.com,555-7890,654 Birch St.,09/05/2023-18:13
-67890,Emily,Chen,emily.chen@example.com,555-2345,321 Pine St.,10/05/2023-18:13
-78901,Michael,Lin,michael.lin@example.com,555-6789,654 Cedar St.,13/05/2023-18:13
-89012,Stephanie,Tan,stephanie.tan@example.com,555-1234,987 Spruce St.,14/05/2023-13:15
-90123,William,Chen,william.chen@example.com,555-5678,123 Poplar St.,15/05/2023-18:13
-01234,Amanda,Liu,amanda.liu@example.com,555-9012,456 Fir St.,16/05/2023-18:13
-12346,James,Lee,james.lee@example.com,555-3456,789 Willow St.,17/05/2023-13:15
-23457,Jessica,Chang,jessica.chang@example.com,555-7890,654 Elm St.,18/05/2023-15:51
-34568,Andrew,Lin,andrew.lin@example.com,555-2345,321 Oak St.,19/05/2023-01:13
-45679,Karen,Liu,karen.liu@example.com,555-6789,987 Maple St.,20/05/2023-06:51
-56790,Rachel,Wu,rachel.wu@example.com,555-1234,654 Cedar St.,21/05/2023-06:21
+1,John,Doe,john.doe@example.com,(555) 123-4567,123 Main St,2024-02-05
+2,Jane,Smith,jane.smith@example.com,(555) 987-6543,456 Oak St,2024-02-06
+3,Michael,Johnson,michael.j@example.com,(555) 555-5555,789 Pine St,2024-02-07
+4,Alice,Williams,alice.w@example.com,(555) 456-7890,101 Elm St,2024-02-08
+5,David,Miller,david.m@example.com,(555) 111-2222,202 Birch St,2024-02-09

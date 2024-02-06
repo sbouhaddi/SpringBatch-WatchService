@@ -15,7 +15,7 @@ public class VisitorsItemProcessor implements ItemProcessor<VisitorsDto, Visitor
     }
 
     @Override
-    public Visitors process(final VisitorsDto visitorsDto) throws Exception {
+    public Visitors process(final VisitorsDto visitorsDto) {
         return visitorsMapper.toVisitors(visitorsDto);
     }
 }

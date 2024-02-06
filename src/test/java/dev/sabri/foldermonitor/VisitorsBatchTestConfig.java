@@ -4,18 +4,18 @@ import lombok.val;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -33,12 +33,16 @@ public class VisitorsBatchTestConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .addScript("/org/springframework/batch/core/schema-h2.sql")
+                .addScript("init.sql")
                 .build();
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new DataSourceTransactionManager(dataSource());
+    @Qualifier("transactionManager")
+    public JpaTransactionManager transactionManager() {
+        val jpaTransactionManager = new JpaTransactionManager();
+        jpaTransactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
+        return jpaTransactionManager;
     }
 
     @Bean("entityManagerFactory")
@@ -46,8 +50,9 @@ public class VisitorsBatchTestConfig {
         val localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         localContainerEntityManagerFactoryBean.setDataSource(dataSource());
         localContainerEntityManagerFactoryBean.setPackagesToScan("dev.sabri.foldermonitor.domain");
-        localContainerEntityManagerFactoryBean.setPersistenceUnitName("visitors");
+        localContainerEntityManagerFactoryBean.setPersistenceUnitName("Visitors");
         val hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+        hibernateJpaVendorAdapter.setShowSql(true);
         localContainerEntityManagerFactoryBean.setJpaVendorAdapter(hibernateJpaVendorAdapter);
         return localContainerEntityManagerFactoryBean;
 
@@ -63,4 +68,5 @@ public class VisitorsBatchTestConfig {
         return jobrepositoryFactoryBean.getObject();
 
     }
+
 }

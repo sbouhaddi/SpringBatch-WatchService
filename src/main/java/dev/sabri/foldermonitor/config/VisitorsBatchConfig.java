@@ -9,6 +9,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -31,6 +32,7 @@ public class VisitorsBatchConfig {
     @Bean
     public Job importVistorsJob(final JobRepository jobRepository, final PlatformTransactionManager transactionManager, final VisitorsRepository visitorsRepository, final VisitorsMapper visitorsMapper) throws IOException {
         return new JobBuilder("importVisitorsJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
                 .start(importVisitorsStep(jobRepository, transactionManager, visitorsRepository, visitorsMapper))
                 .build();
     }
@@ -73,8 +75,8 @@ public class VisitorsBatchConfig {
         val defaultLineMapper = new DefaultLineMapper<VisitorsDto>();
         val lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(",");
-        lineTokenizer.setNames("id", "firstName", "lastName", "emailAddress", "phoneNumber", "address", "visitDate");
-        lineTokenizer.setStrict(false); // Set strict property to false
+        lineTokenizer.setNames("visitorId", "firstName", "lastName", "emailAddress", "phoneNumber", "address", "visitDate");
+        lineTokenizer.setStrict(false);
         defaultLineMapper.setLineTokenizer(lineTokenizer);
         defaultLineMapper.setFieldSetMapper(new VisitorsFieldSetMapper());
         return defaultLineMapper;
